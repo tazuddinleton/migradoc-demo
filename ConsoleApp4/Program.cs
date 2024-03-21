@@ -1,8 +1,12 @@
 ﻿using ConsoleApp4;
 using MigraDoc.DocumentObjectModel;
+using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
+using PdfSharp.Drawing;
 using PdfSharp.Fonts;
+using PdfSharp.Pdf;
+using PdfSharp.Pdf.IO;
 
 class Program
 {
@@ -46,7 +50,7 @@ class Program
             row.Cells[0].AddParagraph(i.ToString());
             row.Cells[1].AddParagraph("Name " + i);
             row.Cells[2].AddParagraph("email" + i + "@example.com");
-            row.Cells[3].AddParagraph("(123) 456-789" + i);
+            row.Cells[3].AddParagraph("(123) 456-789"  + i);
         }
 
 // Step 6: Add pagination to the table
@@ -55,8 +59,30 @@ class Program
         PdfDocumentRenderer renderer = new PdfDocumentRenderer(true);
         renderer.Document = document;
         renderer.RenderDocument();
-        renderer.PdfDocument.Save(Path.Combine(OutputPath, "output.pdf"));
 
      
+        
+        // Add headers and footers to the PDF document
+        PdfDocument pdfDocument = renderer.PdfDocument;
+        XFont font = new XFont("Arial", 10, XFontStyleEx.Regular);
+
+        for (int pageNumber = 0; pageNumber < pdfDocument.PageCount; pageNumber++)
+        {
+                PdfPage page = pdfDocument.Pages[pageNumber];
+                XGraphics gfx = XGraphics.FromPdfPage(page);
+
+                // Draw header
+                XRect headerRect = new XRect(0, 0, page.Width, 60);
+                gfx.DrawString("My Header - Page: " + (pageNumber + 1), font, XBrushes.Black, headerRect, XStringFormats.Center);
+
+                // Draw footer
+                XRect footerRect = new XRect(0, page.Height - 50, page.Width, 30);
+                gfx.DrawString("My Footer - www.example.com", font, XBrushes.Black, footerRect, XStringFormats.Center);
+        }
+        
+        renderer.PdfDocument.Save(Path.Combine(OutputPath, "output.pdf"));
     }
+    
+    
+    
 }
