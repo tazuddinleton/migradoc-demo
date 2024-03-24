@@ -1,12 +1,12 @@
 ﻿using ConsoleApp4;
-using MigraDoc.DocumentObjectModel;
-using MigraDoc.DocumentObjectModel.Shapes;
-using MigraDoc.DocumentObjectModel.Tables;
-using MigraDoc.Rendering;
-using PdfSharp.Drawing;
-using PdfSharp.Fonts;
-using PdfSharp.Pdf;
-using PdfSharp.Pdf.IO;
+
+using MigraDocCore.DocumentObjectModel;
+using MigraDocCore.DocumentObjectModel.Tables;
+using MigraDocCore.Rendering;
+using PdfSharpCore.Drawing;
+using PdfSharpCore.Fonts;
+using PdfSharpCore.Pdf;
+using PdfSharpCore.Pdf.IO;
 
 class Program
 {
@@ -64,7 +64,15 @@ class Program
         
         // Add headers and footers to the PDF document
         PdfDocument pdfDocument = renderer.PdfDocument;
-        XFont font = new XFont("Arial", 10, XFontStyleEx.Regular);
+        XFont font = new XFont("Arial", 10, XFontStyle.Regular);
+
+        using (MemoryStream stream = new MemoryStream())
+        {
+                renderer.PdfDocument.Save(stream);
+                var bytes = stream.ToArray();
+                var pdf = PdfReader.Open(new MemoryStream(bytes), PdfDocumentOpenMode.Modify);
+                
+        }
 
         for (int pageNumber = 0; pageNumber < pdfDocument.PageCount; pageNumber++)
         {
@@ -80,7 +88,22 @@ class Program
                 gfx.DrawString("My Footer - www.example.com", font, XBrushes.Black, footerRect, XStringFormats.Center);
         }
         
-        renderer.PdfDocument.Save(Path.Combine(OutputPath, "output.pdf"));
+        using (MemoryStream stream = new MemoryStream())
+        {
+                renderer.PdfDocument.Save(stream);
+                var bytes = stream.ToArray();
+                var pdf = PdfReader.Open(new MemoryStream(bytes), PdfDocumentOpenMode.Modify);
+                try
+                {
+                        pdf.Save(Path.Combine(OutputPath, "from memory.pdf"));
+                }
+                catch (Exception e)
+                {
+                        Console.WriteLine(e);
+                        throw;
+                } 
+        }
+        // renderer.PdfDocument.Save(Path.Combine(OutputPath, "output_1.pdf"));
     }
     
     

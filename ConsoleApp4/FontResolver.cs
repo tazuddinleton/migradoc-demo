@@ -1,8 +1,5 @@
-﻿using PdfSharp.Fonts;
-using PdfSharp.Quality;
-using System.Drawing.Text;
-using System.IO;
-using MigraDoc.DocumentObjectModel;
+﻿
+using PdfSharpCore.Fonts;
 
 namespace ConsoleApp4;
 
@@ -40,6 +37,8 @@ public class CustomFontResolver : IFontResolver
             return fonts[faceName];
         return null;
     }
+
+    public string DefaultFontName => "Arial";
 
     private string GetFaceName(string familyName, bool isBold, bool isItalic)
     {
